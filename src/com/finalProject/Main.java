@@ -42,12 +42,16 @@ public class Main {
 
             items[i] = new Item(number, profit, weight);
             
-            System.out.println("\n\t" + items[i]);
+            //System.out.println("\n\t" + items[i]);
 
         }
 
         for (int i = 0; i < items.length; i++)
             System.out.println("\n\t" + items[i]);
+
+
+        System.out.println("==============");
+        dynamicProgramming(items, totalWeightLimit);
         }
 
         //create 3rd array having profit weight ration. swap and do swap in correspoding array
@@ -60,4 +64,50 @@ public class Main {
     //6.1 new node for this alorithm implementation
 
     //root level -1 children would be 0 - first elments.
+
+
+    public static void dynamicProgramming(Item[] item, int totalWeightLimit){
+
+        int[] profit = new int[item.length];
+        int[] weight = new int[item.length];
+
+        for (int i = 0; i < item.length; i++){
+            profit[i] = item[i].getProfit();
+            weight[i] = item[i].getWeight();
+        }
+
+
+        //Making matrix where row number is number of items
+        // and the column length is total weight limit
+
+        //For each iteration, we will consider the most optimal solutions up to i-case
+        // and optimize it until we reach the end of the loop.
+        int[][] a = new int[item.length][totalWeightLimit];
+
+        for (int i = 0; i < item.length; i++){
+            for (int j = 0; j < totalWeightLimit; j++) {
+
+                //Setting values at 0 weight and 0 profit to be 0
+                if (i == 0 || j == 0){
+                    a[i][j] = 0;
+                } else {
+
+                    //a[i-1][j] -> Element in the upper row
+                    //
+                    int b = a[i-1][j - weight[i]] + profit[i];
+                    if (b <= 0)
+
+                if (a[i-1][j] <= b){
+                    a[i][j] = b;
+                } else {
+                    a[i][j] = a[i-1][j];
+                }
+
+
+
+                }
+            }
+        }
+
+    }
 }

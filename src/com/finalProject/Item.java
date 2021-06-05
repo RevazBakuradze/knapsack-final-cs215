@@ -13,7 +13,8 @@ public class Item {
         if (weight != 0)
             this.ratio = ((double)profit) / ((double)weight);
         else
-            this.ratio = 0;    }
+            this.ratio = 0;
+    }
 
     public Item() {
         this.number = 0;
