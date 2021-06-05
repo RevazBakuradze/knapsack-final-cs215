@@ -10,9 +10,7 @@ public class Main {
     public static void main(String[] args) throws FileNotFoundException {
 
         //File location might change depending on the address of the file
-        File file = new File("C:\\Users\\revaz\\OneDrive\\" +
-                "Desktop\\Algorithms\\Final\\" +
-                "Comp 215 Programming Project 0-1 Knapsack\\sample.dat");
+        File file = new File("input_data//sample.dat");
 
         Scanner scanner = new Scanner(file);
 
