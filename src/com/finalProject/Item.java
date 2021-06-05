@@ -33,6 +33,7 @@ public class Item {
             this.ratio = 0;    
         }
 
+
      /**
      * Constructs a new object of this class with NO parameters.
      */

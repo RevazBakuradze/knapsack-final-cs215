@@ -46,6 +46,7 @@ public class Main {
             int weight = Integer.parseInt(seperatedWords[2]);
 
             items[i] = new Item(number, profit, weight);    //Creating a new item an put it into the array
+
         }
 
         Arrays.sort(items, new Comparator<Item>() {     //Sort all items using a custom comparator (reverse sort)
@@ -57,9 +58,56 @@ public class Main {
     
         for (int i = 0; i < items.length; i++)          //Print all items
             System.out.println("\n" + items[i]);
+  
+        System.out.println("==============");
+        dynamicProgramming(items, totalWeightLimit);
 
     }//main end
-    
+   
+    public static void dynamicProgramming(Item[] item, int totalWeightLimit){
+
+        int[] profit = new int[item.length];
+        int[] weight = new int[item.length];
+
+        for (int i = 0; i < item.length; i++){
+            profit[i] = item[i].getProfit();
+            weight[i] = item[i].getWeight();
+        }
+
+        //Making matrix where row number is number of items
+        // and the column length is total weight limit
+
+        //For each iteration, we will consider the most optimal solutions up to i-case
+        // and optimize it until we reach the end of the loop.
+        int[][] a = new int[item.length][totalWeightLimit];
+
+        for (int i = 0; i < item.length; i++){
+            for (int j = 0; j < totalWeightLimit; j++) {
+
+                //Setting values at 0 weight and 0 profit to be 0
+                if (i == 0 || j == 0){
+                    a[i][j] = 0;
+                } else {
+
+                    //a[i-1][j] -> Element in the upper row
+                    //
+                    int b = a[i-1][j - weight[i]] + profit[i];
+                    if (b <= 0)
+
+                if (a[i-1][j] <= b){
+                    a[i][j] = b;
+                } else {
+                    a[i][j] = a[i-1][j];
+                }
+
+
+
+                }
+            }
+        }
+
+    }
+  
 }//class end
 
 /*
