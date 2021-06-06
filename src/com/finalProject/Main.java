@@ -1,6 +1,7 @@
 package com.finalProject;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 import java.util.Comparator;
@@ -76,8 +77,10 @@ public class Main {
         for (int i = 0; i < items.length; i++)          //Print all items
             System.out.println("\n" + items[i]);
   
-        System.out.println("==============");
-        //dynamicProgramming(items, totalWeightLimit);
+        System.out.println("==========================" + "==========================");
+        dynamicProgramming(items, totalWeightLimit);
+
+        System.out.println("==========================" + "==========================");
         BreadthFirst_BranchAndBound(items, totalWeightLimit);
         
 
@@ -150,10 +153,18 @@ public class Main {
             return result;
         }
     };
-
-   
+     /**
+     *  The method implements dynamic programming algorithm to
+     *  to solve the knapsack problem. The program returns void
+     *  and prints the Matrix, Maximized Profit, Total Weight, and
+     *  Item Numbers of the Chosen Items
+     *
+     *    @param    Item[] Array of item objects
+     *    @param    int total weight limit
+     **/
     public static void dynamicProgramming(Item[] item, int totalWeightLimit){
 
+        //Initializing and filling length and weight arrays
         int[] profit = new int[item.length];
         int[] weight = new int[item.length];
 
@@ -162,15 +173,14 @@ public class Main {
             weight[i] = item[i].getWeight();
         }
 
-        //Making matrix where row number is number of items
-        // and the column length is total weight limit
+        //Making matrix where row number is number of items + 1 (Starting from 0)
+        // and the column length is total weight limit + 1 (Starting from 0 too)
+        int[][] a = new int[item.length + 1][totalWeightLimit + 1];
 
-        //For each iteration, we will consider the most optimal solutions up to i-case
+        //For each iteration, we will consider the most optimal solutions up to i+1-case
         // and optimize it until we reach the end of the loop.
-        int[][] a = new int[item.length][totalWeightLimit];
-
-        for (int i = 0; i < item.length; i++){
-            for (int j = 0; j < totalWeightLimit; j++) {
+        for (int i = 0; i <= item.length; i++){
+            for (int j = 0; j <= totalWeightLimit; j++) {
 
                 //Setting values at 0 weight and 0 profit to be 0
                 if (i == 0 || j == 0){
@@ -178,34 +188,79 @@ public class Main {
                 } else {
 
                     //a[i-1][j] -> Element in the upper row
-                    //
-                    int b = a[i-1][j - weight[i]] + profit[i];
-                    if (b <= 0)
+                    //a[i-1][j - weight[i]] + profit[i] -> if j - weight[i] > 0
+                    // it results in the existent element in array
+                    // and we add profit to the maximum profit item
+                    int b = 0;
 
-                if (a[i-1][j] <= b){
-                    a[i][j] = b;
-                } else {
-                    a[i][j] = a[i-1][j];
+                    //Making sure that a[i-1][j - weight[i-1]] coordinate exists on the matrix
+                    if ((j - weight[i-1]) >= 0){
+                        b = a[i-1][j - weight[i-1]] + profit[i-1];
+                    }
+
+                    //Setting a[i][j] to the maximum
+                    if (a[i-1][j] <= b){
+                        a[i][j] = b;
+                    } else {
+                        a[i][j] = a[i-1][j];
+                    }
                 }
+            }
+        }
 
+        //Printing the matrix
+        for (int row = 0; row < a.length; row++){ //Cycles through rows
+            for (int col = 0; col < a[row].length; col++){ //Cycles through columns
+                System.out.printf("%5d", a[row][col]); //Printing the matrix elements
+            }
+            System.out.println(); //Makes a new row
+        }
+
+
+        //Maximized total profit
+        int optimalProfit = a[item.length][totalWeightLimit];
+        System.out.println("Maximized Profit: " + optimalProfit);
+
+
+        //Maximized total weight
+        int optimalWeight = 0;
+
+        //for loop for going through the last row of the matrix and
+        // determining
+        for (int i = 0; i <= totalWeightLimit; i++) {
+            if ((a[item.length][i]) == optimalProfit) {
+                optimalWeight = i;
+                break;
+            }
+        }
+
+        System.out.println("Total Weight: " + optimalWeight);
+
+        //Outputting the items to include
+/*
+        //ArrayList string indexes of the used items
+        ArrayList<Integer> usedItemArrayList = new ArrayList<Integer>();
+
+        int temp = 0;
+        for (int i = 0; i <= totalWeightLimit; i++){
+            for (int j = 0; j <= totalWeightLimit; j++) {
+                if (a[totalWeightLimit - j][i] == optimalProfit) {
+                    temp = i;
+
+                    int temp2 = totalWeightLimit - temp;
 
 
                 }
             }
         }
 
+ */
+
     }
-  
 }//class end
 
 /*
     USEFUL NOTES
-
-    //create 3rd array having profit weight ration. swap and do swap in correspoding array
-    
-    //when you sort her sort there too
-
-    //create object and sort by ratio
 
     //breadth first, depth first
 
