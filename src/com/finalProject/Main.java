@@ -30,7 +30,7 @@ public class Main {
          *  Returns difference between node's frequency. (FOR INT)
          **/
         public int compare(Node a, Node b){
-            return Integer.compare(a.getWeight(), b.getWeight());
+            return Float.compare(a.getBound(), b.getBound());
         }
     };
 
@@ -43,7 +43,7 @@ public class Main {
     public static void main(String[] args) throws FileNotFoundException {
 
         //The location of input file with data sample
-        File file = new File("input_data//t3.dat");
+        File file = new File("input_data//t5.dat");
 
         Scanner scanner = new Scanner(file);
 
@@ -82,36 +82,112 @@ public class Main {
 
         System.out.println("==========================" + "==========================");
         BreadthFirst_BranchAndBound(items, totalWeightLimit);
+
+        System.out.println("==========================" + "==========================");
+        BestFirst_BranchAndBound(items, totalWeightLimit);
         
 
     }//main end
-
     public static void BreadthFirst_BranchAndBound(Item[] items, int totalWeightLimit){
-        
+        int counter = 0;
+
         Node u = new Node(0,0,0);
         Node v = new Node(0,0,0);
 
-		ArrayList<Node> q = new ArrayList<Node>();
+		Queue<Node> q = new LinkedList<Node>();
         
         int maxProfit = 0;
 
-        u.setBound(bound(u, items, totalWeightLimit));
-
         q.add(u);
-        
+    
         while(!q.isEmpty()){
-            v = q.get(0);
-            q.remove(0);
+            counter++;
+            System.out.println("\n\tCounter 1: " + counter);
+
+            v = q.poll();
 
             u = new Node(0,0,0);
             u.setLevel(v.getLevel() + 1);
+
+            if((u.getLevel()-1) == items.length)
+                break;
+
             u.setWeight(v.getWeight() + items[u.getLevel()-1].getWeight());
             u.setProfit(v.getProfit() + items[u.getLevel()-1].getProfit());
 
             if (u.getWeight() <= totalWeightLimit && u.getProfit() > maxProfit)
                 maxProfit = u.getProfit();
 
-                u.setBound(bound(u, items, totalWeightLimit));
+            if (bound(u, items, totalWeightLimit, counter) > maxProfit)
+                q.add(u);
+            
+            u = new Node(0,0,0);
+            u.setWeight(v.getWeight());
+            u.setProfit(v.getProfit());
+            u.setLevel(v.getLevel()+1);
+
+            if (bound(v, items, totalWeightLimit, counter) > maxProfit)
+                q.add(u);
+        } 
+
+        System.out.println("\n" + maxProfit);
+        System.out.println("\nDONEEEEEÇEE");
+    };
+    public static float bound (Node currentNode, Item[] items, int totalWeightLimit, int counter){
+        counter++;
+        int j, k;
+        int totalWeight;
+        float result;
+        System.out.println("\n\t\tCounter:" + counter);
+        if (currentNode.getWeight() >= totalWeightLimit)
+            return 0;
+        else {
+            result = currentNode.getProfit();
+            j = currentNode.getLevel() + 1;
+            totalWeight = currentNode.getWeight();
+            while ( j <= items.length-1 && (totalWeight + items[j-1].getWeight()) <= totalWeight){
+                totalWeight = totalWeight + items[j-1].getWeight();
+                result = result + items[j-1].getProfit();
+                j++;
+            }
+            k = j-1;
+            if (k <= items.length-1 )
+                result = result + ((totalWeightLimit - totalWeight) * (items[k].getProfit()/items[k].getWeight()));
+            return result;
+        }
+    };
+    public static void BestFirst_BranchAndBound(Item[] items, int totalWeightLimit){
+        int counter = 0;
+
+        Node u = new Node(0,0,0);
+        Node v = new Node(0,0,0);
+
+		PriorityQueue<Node> q = new PriorityQueue<Node>(new NodeComparator());;
+        
+        int maxProfit = 0;
+
+        v.setBound(bound(u, items, totalWeightLimit, counter));
+
+        q.add(u);
+        
+        while(!q.isEmpty()){
+            System.out.println("\n\tCounter 1: " + counter);
+
+            v = q.poll();
+
+            u = new Node(0,0,0);
+            u.setLevel(v.getLevel() + 1);
+
+            if((u.getLevel()-1) == items.length)
+                break;
+
+            u.setWeight(v.getWeight() + items[u.getLevel()-1].getWeight());
+            u.setProfit(v.getProfit() + items[u.getLevel()-1].getProfit());
+
+            if (u.getWeight() <= totalWeightLimit && u.getProfit() > maxProfit)
+                maxProfit = u.getProfit();
+
+                u.setBound(bound(u, items, totalWeightLimit, counter));
 
             if (u.getBound() > maxProfit)
                 q.add(u);
@@ -120,38 +196,18 @@ public class Main {
             u.setWeight(v.getWeight());
             u.setProfit(v.getProfit());
             u.setLevel(v.getLevel()+1);
-            u.setBound(bound(v, items, totalWeightLimit));
+            u.setBound(bound(v, items, totalWeightLimit, counter));
 
             if (u.getBound() > maxProfit)
                 q.add(u);
+
+            counter++;
         } 
 
         System.out.println("\n" + maxProfit);
         System.out.println("\nDONEEEEEÇEE");
 
 
-    };
-    public static float bound (Node currentNode, Item[] items, int totalWeightLimit){
-        int j, k;
-        int totalWeight;
-        float result;
-        if (currentNode.getWeight() >= totalWeightLimit)
-            return 0;
-        else {
-            result = currentNode.getProfit();
-            j = currentNode.getLevel();
-            totalWeight = currentNode.getWeight();
-            while ( j<= items.length && (totalWeight + items[j].getWeight()) <= totalWeight){
-                totalWeight = totalWeight + items[j].getWeight();
-                result = result + items[j].getProfit();
-                j++;
-            }
-            k = j;
-            if (k <= items.length)
-                result = result + ((totalWeightLimit - totalWeight) * (items[k].getProfit()/items[k].getWeight()));
-
-            return result;
-        }
     };
      /**
      *  The method implements dynamic programming algorithm to
