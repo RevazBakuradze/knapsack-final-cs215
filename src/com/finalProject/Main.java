@@ -4,6 +4,13 @@ import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.Scanner;
 import java.util.Comparator;
+import java.util.PriorityQueue;
+import java.util.LinkedList;
+import java.util.ArrayList;
+
+import java.util.Queue;
+
+
 /**
  *  CS215, Final Programming Project: Knapsack 
  *
@@ -16,6 +23,16 @@ import java.util.Comparator;
  *  @version June 5 2021
  */
 public class Main {
+    
+    static class NodeComparator implements Comparator<Node>{
+        /**
+         *  Returns difference between node's frequency. (FOR INT)
+         **/
+        public int compare(Node a, Node b){
+            return Integer.compare(a.getWeight(), b.getWeight());
+        }
+    };
+
 
     /**
      *  The main function initiates execution of this program.
@@ -25,7 +42,7 @@ public class Main {
     public static void main(String[] args) throws FileNotFoundException {
 
         //The location of input file with data sample
-        File file = new File("input_data//sample.dat");
+        File file = new File("input_data//t3.dat");
 
         Scanner scanner = new Scanner(file);
 
@@ -60,9 +77,80 @@ public class Main {
             System.out.println("\n" + items[i]);
   
         System.out.println("==============");
-        dynamicProgramming(items, totalWeightLimit);
+        //dynamicProgramming(items, totalWeightLimit);
+        BreadthFirst_BranchAndBound(items, totalWeightLimit);
+        
 
     }//main end
+
+    public static void BreadthFirst_BranchAndBound(Item[] items, int totalWeightLimit){
+        
+        Node u = new Node(0,0,0);
+        Node v = new Node(0,0,0);
+
+		ArrayList<Node> q = new ArrayList<Node>();
+        
+        int maxProfit = 0;
+
+        u.setBound(bound(u, items, totalWeightLimit));
+
+        q.add(u);
+        
+        while(!q.isEmpty()){
+            v = q.get(0);
+            q.remove(0);
+
+            u = new Node(0,0,0);
+            u.setLevel(v.getLevel() + 1);
+            u.setWeight(v.getWeight() + items[u.getLevel()-1].getWeight());
+            u.setProfit(v.getProfit() + items[u.getLevel()-1].getProfit());
+
+            if (u.getWeight() <= totalWeightLimit && u.getProfit() > maxProfit)
+                maxProfit = u.getProfit();
+
+                u.setBound(bound(u, items, totalWeightLimit));
+
+            if (u.getBound() > maxProfit)
+                q.add(u);
+            
+            u = new Node(0,0,0);
+            u.setWeight(v.getWeight());
+            u.setProfit(v.getProfit());
+            u.setLevel(v.getLevel()+1);
+            u.setBound(bound(v, items, totalWeightLimit));
+
+            if (u.getBound() > maxProfit)
+                q.add(u);
+        } 
+
+        System.out.println("\n" + maxProfit);
+        System.out.println("\nDONEEEEEÇEE");
+
+
+    };
+    public static float bound (Node currentNode, Item[] items, int totalWeightLimit){
+        int j, k;
+        int totalWeight;
+        float result;
+        if (currentNode.getWeight() >= totalWeightLimit)
+            return 0;
+        else {
+            result = currentNode.getProfit();
+            j = currentNode.getLevel();
+            totalWeight = currentNode.getWeight();
+            while ( j<= items.length && (totalWeight + items[j].getWeight()) <= totalWeight){
+                totalWeight = totalWeight + items[j].getWeight();
+                result = result + items[j].getProfit();
+                j++;
+            }
+            k = j;
+            if (k <= items.length)
+                result = result + ((totalWeightLimit - totalWeight) * (items[k].getProfit()/items[k].getWeight()));
+
+            return result;
+        }
+    };
+
    
     public static void dynamicProgramming(Item[] item, int totalWeightLimit){
 
