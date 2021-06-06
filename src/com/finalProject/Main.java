@@ -5,11 +5,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 import java.util.Comparator;
+import java.util.Queue;
 import java.util.PriorityQueue;
 import java.util.LinkedList;
-import java.util.ArrayList;
-
-import java.util.Queue;
+import java.util.*;
 
 
 /**
@@ -24,16 +23,23 @@ import java.util.Queue;
  *  @version June 5 2021
  */
 public class Main {
-    
+
+    public static boolean DEBUG = false; //a global boolean for debugging
+
+    /**
+     *  The class to store NodeComparator to compare Nodes in PriorityQueues.
+     * 
+     **/
     static class NodeComparator implements Comparator<Node>{
         /**
-         *  Returns difference between node's frequency. (FOR INT)
+         *  Returns difference between node's frequency. 
+         *  Required for PriorityQueue in the best-first branch and bound algorithm.
+         * 
          **/
         public int compare(Node a, Node b){
             return Float.compare(a.getBound(), b.getBound());
         }
     };
-
 
     /**
      *  The main function initiates execution of this program.
@@ -43,7 +49,7 @@ public class Main {
     public static void main(String[] args) throws FileNotFoundException {
 
         //The location of input file with data sample
-        File file = new File("input_data//t5.dat");
+        File file = new File("input_data//t3.dat");
 
         Scanner scanner = new Scanner(file);
 
@@ -66,7 +72,6 @@ public class Main {
             items[i] = new Item(number, profit, weight);    //Creating a new item an put it into the array
 
         }
-
         Arrays.sort(items, new Comparator<Item>() {     //Sort all items using a custom comparator (reverse sort)
             @Override
             public int compare(Item a, Item b) {
@@ -77,137 +82,214 @@ public class Main {
         for (int i = 0; i < items.length; i++)          //Print all items
             System.out.println("\n" + items[i]);
   
-        System.out.println("==========================" + "==========================");
+        System.out.println("=============================================" + "=============================================");
         dynamicProgramming(items, totalWeightLimit);
 
-        System.out.println("==========================" + "==========================");
-        BreadthFirst_BranchAndBound(items, totalWeightLimit);
-
-        System.out.println("==========================" + "==========================");
-        BestFirst_BranchAndBound(items, totalWeightLimit);
+        System.out.println("=============================================" + "=============================================");
+        int[] returnArray1 = BreadthFirst_BranchAndBound(items, totalWeightLimit);
         
+        System.out.print("\n\t\tBreadth-First Search with Branch-and-Bound algorithm\n");
+        System.out.print("\n\tProfit: " + returnArray1[0] + "\n\tWeight: " + returnArray1[1] + "\n\tItems: ");
+        for (int i = 2; i < returnArray1.length; i++)
+            if (returnArray1[i] != Integer.MAX_VALUE)
+                System.out.print(" " + returnArray1[i]);
 
-    }//main end
-    public static void BreadthFirst_BranchAndBound(Item[] items, int totalWeightLimit){
-        int counter = 0;
+        System.out.println("\n\n============================================" + "=============================================");
+        int[] returnArray2 = BestFirst_BranchAndBound(items, totalWeightLimit);
 
-        Node u = new Node(0,0,0);
-        Node v = new Node(0,0,0);
+        System.out.print("\n\t\tBest-First Search with Branch-and-Bound algorithm\n");
+        System.out.print("\n\tProfit: " + returnArray2[0] + "\n\tWeight: " + returnArray2[1] + "\n\tItems: ");
+        for (int i = 2; i < returnArray2.length; i++)
+            if (returnArray1[i] != Integer.MAX_VALUE)
+                System.out.print(" " + returnArray2[i]);
 
-		Queue<Node> q = new LinkedList<Node>();
-        
-        int maxProfit = 0;
+        System.out.println("\n\n============================================" + "=============================================");
 
-        q.add(u);
+    };
+
+    /**
+     *  The method to implement breadth-first branch and bound algorithm to
+     *  to solve the knapsack problem. Return an array of integers, where
+     *  the 1st element is the profit, 2nd element is the total weight, and
+     *  everything else - all collected items and "trash" (Integer.MAX_VALUE elements)
+     *
+     *    @param    Item[] Array of item objects
+     *    @param    int total weight limit
+     *     
+     *    @return   int[] array with the result: [0] - profit, [1] - weight, [2..n] - items and "trash"
+     **/
+    public static int[] BreadthFirst_BranchAndBound(Item[] items, int totalWeightLimit){
+        int counter = 0; //A counter to measure performance
+
+		Queue<Node> q = new LinkedList<Node>(); //Initialize a Queue (LinkedList)
+
+        Node u = new Node(0,0,0);  // Root Node
+        Node v = new Node(0,0,0);  // Temp Node
+
+        int maxProfit = 0;   // Intitailize profit 
+        int finalWeight = 0; // Intitailize profit 
+
+        int[] Profit_Weight_Items = new int[items.length + 2]; // An array of integers to store the result
+        Arrays.fill(Profit_Weight_Items, Integer.MAX_VALUE); // Fill array with max values to ignore them when print
+        Profit_Weight_Items[0] = maxProfit; //First value - profit
+        Profit_Weight_Items [1] = finalWeight; //Second value - weight
+
+        q.add(u);  // Add the root
     
+        //Loops until the queue is empty
         while(!q.isEmpty()){
-            counter++;
-            System.out.println("\n\tCounter 1: " + counter);
+
+            if (DEBUG == true){ counter++; System.out.println("\n\tCounter 1: " + counter);}
 
             v = q.poll();
 
             u = new Node(0,0,0);
-            u.setLevel(v.getLevel() + 1);
+            u.setLevel(v.getLevel() + 1);           // Set u to a child of v
 
-            if((u.getLevel()-1) == items.length)
-                break;
+            if((u.getLevel()-1) == items.length)    // Check if the level doesn't exceed the max possible 
+                break;                              // index to avoid "Index out of bounds" error
 
-            u.setWeight(v.getWeight() + items[u.getLevel()-1].getWeight());
-            u.setProfit(v.getProfit() + items[u.getLevel()-1].getProfit());
+            u.setWeight(v.getWeight() + items[u.getLevel()-1].getWeight()); // Set u's weights to (u's weight + v's weight)
+            u.setProfit(v.getProfit() + items[u.getLevel()-1].getProfit()); // Set u's profit to (u's profit + v's profit)
 
-            if (u.getWeight() <= totalWeightLimit && u.getProfit() > maxProfit)
+            if (u.getWeight() <= totalWeightLimit && u.getProfit() > maxProfit) {
                 maxProfit = u.getProfit();
+                finalWeight = u.getWeight();
+                Profit_Weight_Items[u.getLevel() + 1] = (items[u.getLevel()-1].getNumber());
+            }
 
-            if (bound(u, items, totalWeightLimit, counter) > maxProfit)
+            if (bound(u, items, totalWeightLimit, counter) > maxProfit)    // Adds child to queue if the bound of the child node is better than the maximum profit
                 q.add(u);
             
-            u = new Node(0,0,0);
-            u.setWeight(v.getWeight());
-            u.setProfit(v.getProfit());
-            u.setLevel(v.getLevel()+1);
+            u = new Node(0,0,0);         // Reset head node
+            u.setLevel(v.getLevel()+1);  // Asign the level of child's node to the level of new head node
+            u.setWeight(v.getWeight());  // Asign the weight of child's node to the weight of new head node
+            u.setProfit(v.getProfit());  // Asign the profit of child's node to the profit of new head node
 
-            if (bound(v, items, totalWeightLimit, counter) > maxProfit)
+            if (bound(v, items, totalWeightLimit, counter) > maxProfit)    // Adds child to queue if the bound of the child is better than the maximum profit
                 q.add(u);
-        } 
-
-        System.out.println("\n" + maxProfit);
-        System.out.println("\nDONEEEEEÇEE");
-    };
-    public static float bound (Node currentNode, Item[] items, int totalWeightLimit, int counter){
-        counter++;
-        int j, k;
-        int totalWeight;
-        float result;
-        System.out.println("\n\t\tCounter:" + counter);
-        if (currentNode.getWeight() >= totalWeightLimit)
-            return 0;
-        else {
-            result = currentNode.getProfit();
-            j = currentNode.getLevel() + 1;
-            totalWeight = currentNode.getWeight();
-            while ( j <= items.length-1 && (totalWeight + items[j-1].getWeight()) <= totalWeight){
-                totalWeight = totalWeight + items[j-1].getWeight();
-                result = result + items[j-1].getProfit();
-                j++;
-            }
-            k = j-1;
-            if (k <= items.length-1 )
-                result = result + ((totalWeightLimit - totalWeight) * (items[k].getProfit()/items[k].getWeight()));
-            return result;
         }
+
+        Arrays.sort(Profit_Weight_Items); // Sort an array of items
+
+        Profit_Weight_Items[0] = maxProfit; // Add profit as the first value (it was 0 before)
+        Profit_Weight_Items [1] = finalWeight; // Add weight as the second value (it was 0 before)
+
+        return Profit_Weight_Items; // Return the answer
     };
-    public static void BestFirst_BranchAndBound(Item[] items, int totalWeightLimit){
-        int counter = 0;
+    /**
+     *  The method to implement best-first branch and bound algorithm to
+     *  to solve the knapsack problem. Return an array of integers, where
+     *  the 1st element is the profit, 2nd element is the total weight, and
+     *  everything else - all collected items and "trash" (Integer.MAX_VALUE elements)
+     *
+     *    @param    Item[] Array of item objects
+     *    @param    int total weight limit
+     *     
+     *    @return   int[] array with the result: [0] - profit, [1] - weight, [2..n] - items and "trash"
+     **/
+    public static int[] BestFirst_BranchAndBound(Item[] items, int totalWeightLimit){
+        int counter = 0; //A counter to measure performance
 
-        Node u = new Node(0,0,0);
-        Node v = new Node(0,0,0);
-
-		PriorityQueue<Node> q = new PriorityQueue<Node>(new NodeComparator());;
+		PriorityQueue<Node> q = new PriorityQueue<Node>(new NodeComparator());; // Intitialize PriorityQueue
         
-        int maxProfit = 0;
+        Node u = new Node(0,0,0);  // Root Node
+        Node v = new Node(0,0,0);  // Temp Node
+
+        int maxProfit = 0;   // Intitailize profit 
+        int finalWeight = 0; // Intitailize profit 
+
+        int[] Profit_Weight_Items = new int[items.length + 2]; // An array of integers to store the result
+        Arrays.fill(Profit_Weight_Items, Integer.MAX_VALUE); // Fill array with max values to ignore them when print
+        Profit_Weight_Items[0] = maxProfit; //First value - profit
+        Profit_Weight_Items [1] = finalWeight; //Second value - weight
 
         v.setBound(bound(u, items, totalWeightLimit, counter));
 
-        q.add(u);
-        
-        while(!q.isEmpty()){
-            System.out.println("\n\tCounter 1: " + counter);
+        q.add(u);  // Add the root
 
+        //Loops until the queue is empty
+        while(!q.isEmpty()){
+            if (DEBUG== true){ counter++; System.out.println("\n\tCounter 2: " + counter); }
             v = q.poll();
 
             u = new Node(0,0,0);
-            u.setLevel(v.getLevel() + 1);
+            u.setLevel(v.getLevel() + 1);           // Set u to a child of v
 
-            if((u.getLevel()-1) == items.length)
-                break;
+            if((u.getLevel()-1) == items.length)    // Check if the level doesn't exceed the max possible 
+                break;                              // index to avoid "Index out of bounds" error
 
-            u.setWeight(v.getWeight() + items[u.getLevel()-1].getWeight());
-            u.setProfit(v.getProfit() + items[u.getLevel()-1].getProfit());
+            u.setWeight(v.getWeight() + items[u.getLevel()-1].getWeight()); // Set u's weights to (u's weight + v's weight)
+            u.setProfit(v.getProfit() + items[u.getLevel()-1].getProfit()); // Set u's profit to (u's profit + v's profit)
 
-            if (u.getWeight() <= totalWeightLimit && u.getProfit() > maxProfit)
+            if (u.getWeight() <= totalWeightLimit && u.getProfit() > maxProfit){
                 maxProfit = u.getProfit();
+                finalWeight = u.getWeight();
+                Profit_Weight_Items[u.getLevel() + 1] = (items[u.getLevel()-1].getNumber());
+            }
 
-                u.setBound(bound(u, items, totalWeightLimit, counter));
-
-            if (u.getBound() > maxProfit)
+            u.setBound(bound(u, items, totalWeightLimit, counter));
+            
+            if (u.getBound() > maxProfit)   // Adds child to queue if the bound of the child is better than the maximum profit
                 q.add(u);
             
-            u = new Node(0,0,0);
-            u.setWeight(v.getWeight());
-            u.setProfit(v.getProfit());
-            u.setLevel(v.getLevel()+1);
+            u = new Node(0,0,0);         // Reset head node
+            u.setLevel(v.getLevel()+1);  // Asign the level of child's node to the level of new head node
+            u.setWeight(v.getWeight());  // Asign the weight of child's node to the weight of new head node
+            u.setProfit(v.getProfit());  // Asign the profit of child's node to the profit of new head node
             u.setBound(bound(v, items, totalWeightLimit, counter));
 
-            if (u.getBound() > maxProfit)
+            if (u.getBound() > maxProfit)    // Adds child to queue if the bound of the child is better than the maximum profit
                 q.add(u);
-
-            counter++;
         } 
 
-        System.out.println("\n" + maxProfit);
-        System.out.println("\nDONEEEEEÇEE");
+        Arrays.sort(Profit_Weight_Items); // Sort an array of items
 
+        Profit_Weight_Items[0] = maxProfit; // Add profit as the first value (it was 0 before)
+        Profit_Weight_Items [1] = finalWeight; // Add weight as the second value (it was 0 before)
 
+        return Profit_Weight_Items; // Return the answer
+    };
+    /**
+     *    The method that calculates the best case profit at a particular node. It calculated the bound by taking the profit
+     *    of the current note and adding the profit of all other items that can fit in the knapstack.
+     * 
+     *    Essential for Best-First Search with Branch-and-Bound algorithm and Breadth-First Search with Branch-and-Bound algorithm.
+     *
+     *    @param    Node[] the current node
+     *    @param    Item[] the list of itmes
+     *    @param    int[] the weight limit
+     *    @param    int counter (for debug purposes)
+     *     
+     *    @return   float - the current node's bound
+     **/
+    public static float bound (Node currentNode, Item[] items, int totalWeightLimit, int counter){
+                
+        if (DEBUG == true) {counter++; System.out.println("\n\t\tCounter:" + counter);};
+
+        int j, k; // Variables for indexes
+        int totalWeight; //A variable for total weight
+        float result; // A variable to contain the bound
+
+        if (currentNode.getWeight() >= totalWeightLimit)    //Return 0 if the weight of the node is more than weights's limit
+            return 0;
+        else {
+            result = currentNode.getProfit(); 
+            j = currentNode.getLevel() + 1;
+            totalWeight = currentNode.getWeight();
+            
+            while ( j <= items.length-1 && (totalWeight + items[j-1].getWeight()) <= totalWeight){  // Grab as many items a possible
+                totalWeight = totalWeight + items[j-1].getWeight(); 
+                result = result + items[j-1].getProfit();
+                j++;
+            }
+
+            k = j-1;                                //Use the original formula to get the current bound
+            if (k <= items.length-1 ) 
+                result = result + ((totalWeightLimit - totalWeight) * (items[k].getProfit()/items[k].getWeight()));
+            return result;
+
+        }
     };
      /**
      *  The method implements dynamic programming algorithm to
@@ -311,16 +393,5 @@ public class Main {
         }
 
  */
-
     }
 }//class end
-
-/*
-    USEFUL NOTES
-
-    //breadth first, depth first
-
-    //6.1 new node for this alorithm implementation
-
-    //root level -1 children would be 0 - first elments.
-*/

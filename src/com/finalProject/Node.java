@@ -3,6 +3,7 @@ package com.finalProject;
  *  CS215, Final Programming Project: Knapsack 
  *
  *  Node class.
+ * 
  *  
  *  @author Aleksandr Molchagin
  *  @author Revaz Bakuradze
