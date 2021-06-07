@@ -17,14 +17,12 @@ public class Node {
     private int profit;
     private int weight;
     private double bound;
-    public ArrayList<Item> items;
 
-    public Node(int level, int profit, int weight, ArrayList<Item> items) {
+    public Node(int level, int profit, int weight) {
         this.level = level;
         this.profit = profit;
         this.weight = weight;
         this.bound = 0;
-        this.items = items;
     }
 
     public Node(int level, int profit, int weight, double bound) {
@@ -36,22 +34,6 @@ public class Node {
 
     public int getLevel() {
         return level;
-    }
-
-    public ArrayList<Item> getItems() {
-        return items;
-    }
-
-    public void addItem(Item i) {
-        this.items.add(i);
-    }
-
-    public void removeItem() {
-        this.items.remove(items.size()-1);
-    }
-
-    public void setItems(ArrayList<Item> list) {
-        this.items = list;
     }
     
     public void setLevel(int level) {
