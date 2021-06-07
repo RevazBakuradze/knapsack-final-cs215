@@ -6,6 +6,9 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
+
+import jdk.tools.jlink.resources.jlink;
+
 import java.util.Comparator;
 import java.util.Queue;
 import java.util.PriorityQueue;
@@ -51,7 +54,7 @@ public class Main {
     public static void main(String[] args) throws FileNotFoundException {
 
         //The location of input file with data sample
-        File file = new File("input_data//t7.dat");
+        File file = new File("input_data//book.dat");
 
         Scanner scanner = new Scanner((new BufferedReader(new FileReader(file))));
 
@@ -66,10 +69,9 @@ public class Main {
         //For loop for inputting values from file to the array of items
         for(int i=0; i < numberOfItems; i++) {
             int number = scanner.nextInt();
-            int profit = scanner.nextInt();
+            int profit = scanner.nextInt() * 100;
             int weight = scanner.nextInt();
             items[i] = new Item(number, profit, weight);    //Creating a new item an put it into the array
-
         }
         Arrays.sort(items, new Comparator<Item>() {     //Sort all items using a custom comparator (reverse sort)
             @Override
@@ -236,14 +238,30 @@ public class Main {
                 finalWeight = u.getWeight();
 
                 list.add(items[u.getLevel()-1]);
-           
+
                 int sum = 0;
                 for (int i = 0; i < list.size(); i++){
                     sum += list.get(i).getProfit();
                 }
                 if (sum != maxProfit)
-                    list.remove(list.size()-2);
-        
+                    list.remove(list.size()-2);    
+                    
+                int sumW = 0;
+                for (int i = 0; i < list.size(); i++){
+                    sumW += list.get(i).getWeight();
+                }
+                if (sumW != finalWeight){
+                    list.remove(list.size()-1); 
+                    int minNode = Integer.MAX_VALUE;
+                    int k = 0;
+                    for(int j = 0; j < items.length; j++){
+                        if(minNode > items[j].getWeight() && !list.contains(items[j])){
+                            minNode = items[j].getWeight();
+                            k = j;
+                        }
+                    }
+                    list.add((items[k]));
+                }   
             }
 
             u.setBound(bound(u, items, totalWeightLimit, counter));
