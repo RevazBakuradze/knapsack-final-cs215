@@ -1,10 +1,11 @@
 package com.finalProject;
 import java.io.File;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
-
 import java.util.Comparator;
 import java.util.Queue;
 import java.util.PriorityQueue;
@@ -50,26 +51,23 @@ public class Main {
     public static void main(String[] args) throws FileNotFoundException {
 
         //The location of input file with data sample
-        File file = new File("input_data//book.dat");
+        File file = new File("input_data//t7.dat");
 
-        Scanner scanner = new Scanner(file);
+        Scanner scanner = new Scanner((new BufferedReader(new FileReader(file))));
 
-        int numberOfItems = Integer.parseInt(scanner.nextLine());       //Represents the number of items in the problem set
-        int totalWeightLimit = Integer.parseInt(scanner.nextLine());    //Represents the total weight limit
-        Item[] items = new Item[numberOfItems];                         //Represents array of all items
+        int numberOfItems = 0; //Represents the number of items in the problem set
+        if(scanner.hasNext()) numberOfItems = scanner.nextInt();
+		
+        int totalWeightLimit = 0;  //Represents the total weight limit
+        if(scanner.hasNext()) totalWeightLimit = scanner.nextInt();
 
-        //For loop for inputting values from file to the arrays
-        for (int i = 0; i < numberOfItems; i++) {
+        Item[] items = new Item[numberOfItems]; //Represents array of all items
 
-            String line = scanner.nextLine();               //Getting the next line
-
-            String seperatedWords[] = line.split(" ", 3);   //Breaking up the line with spaces and storing words in array
-
-            
-            int number = Integer.parseInt(seperatedWords[0]);
-            int profit = Integer.parseInt(seperatedWords[1]);
-            int weight = Integer.parseInt(seperatedWords[2]);
-
+        //For loop for inputting values from file to the array of items
+        for(int i=0; i < numberOfItems; i++) {
+            int number = scanner.nextInt();
+            int profit = scanner.nextInt();
+            int weight = scanner.nextInt();
             items[i] = new Item(number, profit, weight);    //Creating a new item an put it into the array
 
         }
@@ -398,6 +396,8 @@ public class Main {
                 break;
             }
         }
+
+        
 
         System.out.println("Total Weight: " + optimalWeight);
 
