@@ -126,8 +126,8 @@ public class Main {
         
 		Queue<Node> q = new LinkedList<Node>(); //Initialize a Queue (LinkedList)
 
-        Node u = new Node(0,0,0, new ArrayList<Item>());  // Root Node
-        Node v = new Node(0,0,0, new ArrayList<Item>());  // Temp Node
+        Node u = new Node(0,0,0);  // Root Node
+        Node v = new Node(0,0,0);  // Temp Node
 
         int maxProfit = 0;   // Intitailize profit 
         int finalWeight = 0; // Intitailize profit 
@@ -142,7 +142,7 @@ public class Main {
 
             v = q.poll();
 
-            u = new Node(0,0,0, new ArrayList<Item>());   
+            u = new Node(0,0,0);   
             u.setLevel(v.getLevel() + 1);           // Set u to a child of v
 
             if((u.getLevel()-1) == items.length)    // Check if the level doesn't exceed the max possible 
@@ -170,7 +170,7 @@ public class Main {
             if (bound(u, items, totalWeightLimit, counter) > maxProfit)    // Adds child to queue if the bound of the child node is better than the maximum profit
                 q.add(u);
             
-            u = new Node(0,0,0, new ArrayList<Item>());         // Reset head node
+            u = new Node(0,0,0);         // Reset head node
             u.setLevel(v.getLevel()+1);  // Asign the level of child's node to the level of new head node
             u.setWeight(v.getWeight());  // Asign the weight of child's node to the weight of new head node
             u.setProfit(v.getProfit());  // Asign the profit of child's node to the profit of new head node
@@ -211,8 +211,8 @@ public class Main {
 
 		PriorityQueue<Node> q = new PriorityQueue<Node>(new NodeComparator());; // Intitialize PriorityQueue
         
-        Node u = new Node(0,0,0, new ArrayList<Item>());  // Root Node
-        Node v = new Node(0,0,0, new ArrayList<Item>());  // Temp Node
+        Node u = new Node(0,0,0);  // Root Node
+        Node v = new Node(0,0,0);  // Temp Node
 
         int maxProfit = 0;   // Intitailize profit 
         int finalWeight = 0; // Intitailize profit 
@@ -226,7 +226,7 @@ public class Main {
             if (DEBUG== true){ counter++; System.out.println("\n\tCounter 2: " + counter); }
             v = q.poll();
 
-            u = new Node(0,0,0, new ArrayList<Item>());
+            u = new Node(0,0,0);
             u.setLevel(v.getLevel() + 1);           // Set u to a child of v
 
             if((u.getLevel()-1) == items.length)    // Check if the level doesn't exceed the max possible 
@@ -255,7 +255,7 @@ public class Main {
             if (u.getBound() > maxProfit)   // Adds child to queue if the bound of the child is better than the maximum profit
                 q.add(u);
             
-            u = new Node(0,0,0, new ArrayList<Item>());         // Reset head node
+            u = new Node(0,0,0);         // Reset head node
             u.setLevel(v.getLevel()+1);  // Asign the level of child's node to the level of new head node
             u.setWeight(v.getWeight());  // Asign the weight of child's node to the weight of new head node
             u.setProfit(v.getProfit());  // Asign the profit of child's node to the profit of new head node
