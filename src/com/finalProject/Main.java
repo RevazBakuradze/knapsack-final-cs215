@@ -25,8 +25,8 @@ import java.util.LinkedList;
  */
 public class Main {
 
-    public static boolean DEBUG = false; //a global boolean for debugging
-
+    //A global variable for debugging
+    public static boolean DEBUG = false;
 
     /**
      *  The main function initiates execution of this program.
@@ -36,7 +36,7 @@ public class Main {
     public static void main(String[] args) throws FileNotFoundException {
 
         //The location of input file with data sample
-        File file = new File("input_data//book.dat");
+        File file = new File("input_data//t7.dat");
 
         Scanner scanner = new Scanner((new BufferedReader(new FileReader(file))));
 
@@ -417,6 +417,18 @@ public class Main {
         int i = item.length;
         int j = optimalWeight;
 
+        while (i > 0 && j > 0){
+            if (matrix[i][j] == matrix[i - 1][j]){
+                i--;
+            }
+            //If there is not same value of profit at the row above, then the item
+            // should be chosen
+            else {
+                System.out.println("Item " + i + " is selected");
+                i--;            //decrement i
+                j -= weight[i]; //decrement weight
+            }
+        }
 
     }
 
