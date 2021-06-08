@@ -36,7 +36,7 @@ public class Main {
     public static void main(String[] args) throws FileNotFoundException {
 
         //The location of input file with data sample
-        File file = new File("input_data//t7.dat");
+        File file = new File("input_data//t3.dat");
 
         Scanner scanner = new Scanner((new BufferedReader(new FileReader(file))));
 
@@ -215,59 +215,48 @@ public class Main {
 
             v = q.poll();
 
-            u = new Node(0,0,0);
-            u.setLevel(v.getLevel() + 1);           // Set u to a child of v
+            if (u.getWeight() <= totalWeightLimit){
+  
+                u = new Node(0,0,0);
+                u.setLevel(v.getLevel() + 1);           // Set u to a child of v
 
-            if((u.getLevel()-1) == items.length)    // Check if the level doesn't exceed the max possible 
-                break;                              // index to avoid "Index out of bounds" error
+                if((u.getLevel()-1) == items.length)    // Check if the level doesn't exceed the max possible 
+                    break;                              // index to avoid "Index out of bounds" error
 
-            u.setWeight(v.getWeight() + items[u.getLevel()-1].getWeight()); // Set u's weights to (u's weight + v's weight)
-            u.setProfit(v.getProfit() + items[u.getLevel()-1].getProfit()); // Set u's profit to (u's profit + v's profit)
+                u.setWeight(v.getWeight() + items[u.getLevel()-1].getWeight()); // Set u's weights to (u's weight + v's weight)
+                u.setProfit(v.getProfit() + items[u.getLevel()-1].getProfit()); // Set u's profit to (u's profit + v's profit)
+                u.setBound(bound(v, items, totalWeightLimit, counter));
 
-            if (u.getWeight() <= totalWeightLimit && u.getProfit() > maxProfit){
-                maxProfit = u.getProfit();
-                finalWeight = u.getWeight();
+                if (u.getWeight() <= totalWeightLimit && u.getProfit() > maxProfit){
 
-                list.add(items[u.getLevel()-1]);
+                    maxProfit = u.getProfit();
+                    finalWeight = u.getWeight();
 
-                int sum = 0;
-                for (int i = 0; i < list.size(); i++){
-                    sum += list.get(i).getProfit();
-                }
-                if (sum != maxProfit)
-                    list.remove(list.size()-2);    
-                    
-                int sumW = 0;
-                for (int i = 0; i < list.size(); i++){
-                    sumW += list.get(i).getWeight();
-                }
-                if (sumW != finalWeight){
-                    list.remove(list.size()-1); 
-                    int minNode = Integer.MAX_VALUE;
-                    int k = 0;
-                    for(int j = 0; j < items.length; j++){
-                        if(minNode > items[j].getWeight() && !list.contains(items[j])){
-                            minNode = items[j].getWeight();
-                            k = j;
-                        }
+                    list.add(items[u.getLevel()-1]);
+
+                    int sum = 0;
+                    for (int i = 0; i < list.size(); i++){
+                        sum += list.get(i).getProfit();
                     }
-                    list.add((items[k]));
+                    if (sum != maxProfit)
+                        list.remove(list.size()-2);    
+                        
                 }   
-            }
-
-            u.setBound(bound(u, items, totalWeightLimit, counter));
+                u.setBound(bound(u, items, totalWeightLimit, counter));
             
-            if (u.getBound() > maxProfit)   // Adds child to queue if the bound of the child is better than the maximum profit
-                q.add(u);
-            
-            u = new Node(0,0,0);         // Reset head node
-            u.setLevel(v.getLevel()+1);  // Assign the level of child's node to the level of new head node
-            u.setWeight(v.getWeight());  // Assign the weight of child's node to the weight of new head node
-            u.setProfit(v.getProfit());  // Assign the profit of child's node to the profit of new head node
-            u.setBound(bound(v, items, totalWeightLimit, counter));
-
-            if (u.getBound() > maxProfit)    // Adds child to queue if the bound of the child is better than the maximum profit
-                q.add(u);
+                if (u.getBound() > maxProfit)   // Adds child to queue if the bound of the child is better than the maximum profit
+                    q.add(u);
+                
+                u = new Node(0,0,0);         // Reset head node
+                u.setLevel(v.getLevel()+1);  // Assign the level of child's node to the level of new head node
+                u.setWeight(v.getWeight());  // Assign the weight of child's node to the weight of new head node
+                u.setProfit(v.getProfit());  // Assign the profit of child's node to the profit of new head node
+                u.setBound(bound(v, items, totalWeightLimit, counter));
+    
+                if (u.getBound() > maxProfit)    // Adds child to queue if the bound of the child is better than the maximum profit
+                    q.add(u);
+                
+            } 
         } 
 
         int[] Profit_Weight_Items = new int[list.size() + 2]; // An array of integers to store the result
