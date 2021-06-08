@@ -10,23 +10,36 @@ import java.util.Comparator;
 import java.util.Queue;
 import java.util.PriorityQueue;
 import java.util.LinkedList;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 
 /**
  *  CS215, Final Programming Project: Knapsack 
  *
- *  Main Class.
- *
- *  DETAILED DESCRIPTION SHOULD BE UPDATED.
+ *  In this project, we have used Java programming language to implement three different algorithms for solving the knapsack problem:
+ * 
+ *      1.  Dynamic Programming
+ *      2. Breadth-first branch and bound
+ *      3. Best-first branch and bound
+ *  
+ *  We also implemented them separately in order to emphasize the differences between each of them.
+ *  The output of our program  provides the number of the collected items in the optimal solution, as well as the total weight and profit.
  *
  *  @author Revaz Bakuradze
  *  @author Aleksandr Molchagin
- *  @version June 5 2021
+ *  @author Duurenbayar Ulziiduuren 
+ * 
+ *  @version June 7 2021
  */
 public class Main {
 
-    //A global variable for debugging
-    public static boolean DEBUG = false;
+
+    public static boolean DEBUG = false;    //A global variable for debugging
+    public static boolean timeTest = true;  //TRUE = enable run timer to print the algorithm's execution time in microseconds
+    public static long startTime = 0; 
+    public static long endTime = 0;         //Parameters for timer
+    public static long totalTime = 0;
+    public static int K = 100000;           //Multiplicator for profit (fixes Branch and Bound algorithms when profit/weight ratio is too small)
 
     /**
      *  The main function initiates execution of this program.
@@ -34,7 +47,7 @@ public class Main {
      *              (but main methods always need this parameter)
      **/
     public static void main(String[] args) throws FileNotFoundException {
-
+        
         //The location of input file with data sample
         File file = new File("input_data//t3.dat");
 
@@ -51,7 +64,7 @@ public class Main {
         //For loop for inputting values from file to the array of items
         for(int i=0; i < numberOfItems; i++) {
             int number = scanner.nextInt();
-            int profit = scanner.nextInt() * 100;
+            int profit = scanner.nextInt() * K;
             int weight = scanner.nextInt();
             items[i] = new Item(number, profit, weight);    //Creating a new item an put it into the array
         }
@@ -65,28 +78,43 @@ public class Main {
     
         for (int i = 0; i < items.length; i++)          //Print all items
             System.out.println("\n" + items[i]);
-  
+
+            //Start timer (IF timeTest = TRUE)
+            if (timeTest == true) { startTime = System.nanoTime();};
         System.out.println("=============================================" + "=============================================");
+        System.out.print("\n\t\tDynamic Programming Algorithm\n\n");
+
         dynamicProgramming(items, totalWeightLimit);
 
-        System.out.println("=============================================" + "=============================================");
+       
+            //get timer's value in nanoseconds, convert microseconds, and prints the result
+            if (timeTest == true) {long ms = NANOSECONDS.toMicros(totalTime); System.out.print("\n\n\tThe runtime is " + ms + " microseconds");};
+            //Start timer (IF timeTest = TRUE)
+            if (timeTest == true) { startTime = System.nanoTime();};
+        System.out.println("\n=============================================" + "=============================================");
+        
         int[] returnArray1 = BreadthFirst_BranchAndBound(items, totalWeightLimit);
         
-        System.out.print("\n\t\tBreadth-First Search with Branch-and-Bound algorithm\n");
+        System.out.print("\n\t\tBreadth-First Search with Branch-and-Bound Algorithm\n");
         System.out.print("\n\tProfit: " + returnArray1[0] + "\n\tWeight: " + returnArray1[1] + "\n\tItems: ");
         for (int i = 2; i < returnArray1.length; i++)
             System.out.print(" " + returnArray1[i]);
 
-        System.out.println("\n\n============================================" + "=============================================");
+            //get timer's value in nanoseconds, convert microseconds, and prints the result
+            if (timeTest == true) {long ms = NANOSECONDS.toMicros(totalTime); System.out.print("\n\n\tThe runtime is " + ms + " microseconds");};
+            //Start timer (IF timeTest = TRUE)
+            if (timeTest == true) { startTime = System.nanoTime();};    
+        System.out.println("\n============================================" + "=============================================");
         int[] returnArray2 = BestFirst_BranchAndBound(items, totalWeightLimit);
 
-        System.out.print("\n\t\tBest-First Search with Branch-and-Bound algorithm\n");
+        System.out.print("\n\t\tBest-First Search with Branch-and-Bound Algorithm\n");
         System.out.print("\n\tProfit: " + returnArray2[0] + "\n\tWeight: " + returnArray2[1] + "\n\tItems: ");
         for (int i = 2; i < returnArray2.length; i++)
             System.out.print(" " + returnArray2[i]);
 
-        System.out.println("\n\n============================================" + "=============================================");
-
+            //get timer's value in nanoseconds, convert microseconds, and prints the result
+            if (timeTest == true) {long ms = NANOSECONDS.toMicros(totalTime); System.out.print("\n\n\tThe runtime is " + ms + " microseconds");};
+        System.out.println("\n============================================" + "=============================================");
     }
 
     /**
@@ -137,16 +165,16 @@ public class Main {
 
             if (u.getWeight() <= totalWeightLimit && u.getProfit() > maxProfit) {
 
-                maxProfit = u.getProfit();
-                finalWeight = u.getWeight();
+                maxProfit = u.getProfit();      // Update the maximum profit
+                finalWeight = u.getWeight();    // Update the final weight
 
-                list.add(items[u.getLevel()-1]);
+                list.add(items[u.getLevel()-1]);       //Add a new item
 
                 int sum = 0;
                 for (int i = 0; i < list.size(); i++){
-                    sum += list.get(i).getProfit();
+                    sum += list.get(i).getProfit(); 
                 }
-                if (sum != maxProfit)
+                if (sum != maxProfit)                  //Check if the sum of all items' profit is correct. If not, delete the node before the last one to fix
                     list.remove(list.size()-2);
 
             }
@@ -163,6 +191,9 @@ public class Main {
                 q.add(u);
         }
 
+         //Ends timer
+         if (timeTest == true) {endTime = System.nanoTime();  totalTime = (endTime - startTime);};
+
         int[] Profit_Weight_Items = new int[list.size() + 2]; // An array of integers to store the result
         Arrays.fill(Profit_Weight_Items, 0); // Fill array with max values to ignore them when print
 
@@ -172,7 +203,7 @@ public class Main {
 
         Arrays.sort(Profit_Weight_Items); // Sort an array of items
 
-        Profit_Weight_Items[0] = maxProfit; // Add profit as the first value (it was 0 before)
+        Profit_Weight_Items[0] = maxProfit/K; // Add profit as the first value (it was 0 before)
         Profit_Weight_Items [1] = finalWeight; // Add weight as the second value (it was 0 before)
 
         return Profit_Weight_Items; // Return the answer
@@ -218,6 +249,7 @@ public class Main {
             if (u.getWeight() <= totalWeightLimit){
   
                 u = new Node(0,0,0);
+
                 u.setLevel(v.getLevel() + 1);           // Set u to a child of v
 
                 if((u.getLevel()-1) == items.length)    // Check if the level doesn't exceed the max possible 
@@ -229,16 +261,16 @@ public class Main {
 
                 if (u.getWeight() <= totalWeightLimit && u.getProfit() > maxProfit){
 
-                    maxProfit = u.getProfit();
-                    finalWeight = u.getWeight();
+                    maxProfit = u.getProfit();      // Update profit
+                    finalWeight = u.getWeight();    // Update weight
 
-                    list.add(items[u.getLevel()-1]);
+                    list.add(items[u.getLevel()-1]);    //Add a new item
 
                     int sum = 0;
                     for (int i = 0; i < list.size(); i++){
                         sum += list.get(i).getProfit();
                     }
-                    if (sum != maxProfit)
+                    if (sum != maxProfit)           //Check if the sum of all items' profit is correct. If not, delete the node before the last one to fix
                         list.remove(list.size()-2);    
                         
                 }   
@@ -258,6 +290,8 @@ public class Main {
                 
             } 
         } 
+          //Ends timer
+          if (timeTest == true) {endTime = System.nanoTime();  totalTime = (endTime - startTime);};
 
         int[] Profit_Weight_Items = new int[list.size() + 2]; // An array of integers to store the result
         Arrays.fill(Profit_Weight_Items, 0); // Fill array with max values to ignore them when print
@@ -268,7 +302,7 @@ public class Main {
 
         Arrays.sort(Profit_Weight_Items); // Sort an array of items
 
-        Profit_Weight_Items[0] = maxProfit; // Add profit as the first value (it was 0 before)
+        Profit_Weight_Items[0] = maxProfit/K; // Add profit as the first value (it was 0 before)
         Profit_Weight_Items [1] = finalWeight; // Add weight as the second value (it was 0 before)
 
         return Profit_Weight_Items; // Return the answer
@@ -373,11 +407,13 @@ public class Main {
                 }
             }
         }
-
+             //Ends timer
+            if (timeTest == true) {endTime = System.nanoTime();  totalTime = (endTime - startTime);};
+       
         //Printing the matrix
         for (int row = 0; row < matrix.length; row++){ //Cycles through rows
             for (int col = 0; col < matrix[row].length; col++){ //Cycles through columns
-                System.out.printf("%5d", matrix[row][col]); //Printing the matrix elements
+                System.out.printf("%5d", matrix[row][col]/K); //Printing the matrix elements
             }
             System.out.println(); //Makes a new row
         }
@@ -385,7 +421,7 @@ public class Main {
 
         //Maximized total profit
         int optimalProfit = matrix[item.length][totalWeightLimit];
-        System.out.println("Maximized Profit: " + optimalProfit);
+        System.out.println("\n\tProfit: " + optimalProfit/K);
 
 
         //Maximized total weight
@@ -400,8 +436,9 @@ public class Main {
             }
         }
 
-        System.out.println("Total Weight: " + optimalWeight);
+        System.out.println("\tWeight: " + optimalWeight);
 
+        System.out.print("\tItems: ");
         //Outputting the items to include
         int i = item.length;
         int j = optimalWeight;
@@ -413,11 +450,13 @@ public class Main {
             //If there is not same value of profit at the row above, then the item
             // should be chosen
             else {
-                System.out.println("Item " + i + " is selected");
+                System.out.print(" " + i + " ");
                 i--;            //decrement i
                 j -= weight[i]; //decrement weight
             }
         }
+        System.out.print("\n");
+
 
     }
 

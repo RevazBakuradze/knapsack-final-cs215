@@ -1,5 +1,4 @@
 package com.finalProject;
-import java.util.ArrayList;
 
 /**
  *  CS215, Final Programming Project: Knapsack 
@@ -9,6 +8,8 @@ import java.util.ArrayList;
  *  
  *  @author Aleksandr Molchagin
  *  @author Revaz Bakuradze
+ *  @author Duurenbayar Ulziiduuren 
+ * 
  *  @version June 5 2021
  */
 public class Node {

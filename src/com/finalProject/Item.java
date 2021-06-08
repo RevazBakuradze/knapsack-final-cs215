@@ -8,6 +8,8 @@ package com.finalProject;
  *
  *  @author Aleksandr Molchagin
  *  @author Revaz Bakuradze
+ *  @author Duurenbayar Ulziiduuren 
+ * 
  *  @version June 5 2021
  */
 public class Item {
